@@ -4,5 +4,5 @@
 
 <h2> Expected enhancements</h2>
 <h3> Multi-platform support: Currently Mac and Linux (Ubuntu)</h3>
-<h3> GUI to folder selection </h3>
+<h3> GUI for folder selection </h3>
 
