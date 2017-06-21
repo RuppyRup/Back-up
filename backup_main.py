@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import shutil
 import getpass
@@ -30,76 +31,77 @@ class Backup:
 class External:
     '''Gets the path of the any external hard drives that are connected'''
     
-    
-    def __init__(self, user):
+    def __init__(self, user, start_dir):
         self._user = user
-        self._start_dir = ''
+        self._start_dir = start_dir
 
     def drives(self):
+        print(os.listdir(self._start_dir))
         ext_drives = []
-        for drive in os.listdir(self._my_path):
-            ext_drives.append(os.path.join(self._my_path, drive))
-        return ext_drives
-
-class External_Mac(External):
-    def __init__(self, user):
-        super().__init__(self)
-        self._start_dir = '/Volumes'
-        print('Hello')
-        
-    
-    def drives(self):
-        ext_drives = []
-        print('directory :' + self._start_dir)
-        print(os.listdir('/Volumes'))
         for drive in os.listdir(self._start_dir):
             ext_drives.append(os.path.join(self._start_dir, drive))
         return ext_drives
-       
 
 def main():
 
     user = getpass.getuser()
     print('Hello ' + user)
-    my_ext = External_Mac(user)
     
-    select_drive = False
+    platform = sys.platform
+    if platform == 'linux' or platform == 'linux2':
+    	# linux
+        print('This is a Linux platform')
+        start_dir = os.path.join('/media/', user)
+    elif platform == 'darwin':
+    	# Mac OS
+        print('This is Mac OS')
+        start_dir = '/Volumes'
+    elif platform == 'win32':
+    	# Windows
+        print('This is a Windows platform')
+        start_dir = None
+    else:
+        print('Platform is unknown. Aborting....')
+        sys.exit(0)
+
+    if os.path.isdir(start_dir):
+        print('External drive is valid')
+    else:
+        print('External drive is invalid. Aborting')
+        sys.exit(0)
+        
+
+
+    my_ext = External(user, start_dir) # create instance for external drives
+    
     ext_drive = ''
 
-    if my_ext.drives():
-        for drive in my_ext.drives():
+    if my_ext.drives(): # If drive has found some drives
+        for drive in my_ext.drives(): #Iterate through the dives to select one
                 select = input('Backup on {} [y/n]: '.format(drive))
                 if select == 'y':
                     ext_drive = drive
-                    select_drive = True
                     break
     else:
-        print('No external drives')
+        print('No external drives') 
+        sys.exit(0) # Exit if no drives found.
 
-    if select_drive == False: sys.exit(0)
-    print(ext_drive)
-
-            
-            
-    
-
-    default_src = os.environ['HOME']
+    default_src = os.environ['HOME'] # Set up the source directory starting from home directory
 
     is_valid_root = False
-    
 
-    while not is_valid_root:
+    while not is_valid_root: # Iterate through directory loop until a valid directory is chosen.
         my_root = input('Enter root directory {}: '.format(default_src))
         my_root = os.path.join(default_src, my_root)
         is_valid_root = os.path.isdir(my_root)
         print(my_root)
 
     my_dst = os.path.join(ext_drive, user + 'Backup')
-'''   
+  
 
     Backup(my_root, my_dst)
 
-'''
+
 
 
 if __name__=='__main__': main()
